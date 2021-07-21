@@ -1026,6 +1026,8 @@ options! {
         "combine CGUs into a single one"),
     crate_attr: Vec<String> = (Vec::new(), parse_string_push, [TRACKED],
         "inject the given attribute in the crate"),
+    set_debug_compilation_dir: Option<String> = (None, parse_opt_string, [TRACKED],
+        "the compilation directory to embed in the debug info"),
     debug_macros: bool = (false, parse_bool, [TRACKED],
         "emit line numbers debug info inside macros (default: no)"),
     deduplicate_diagnostics: bool = (true, parse_bool, [UNTRACKED],

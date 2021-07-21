@@ -715,6 +715,7 @@ fn test_debugging_options_tracking_hash() {
     tracked!(chalk, true);
     tracked!(codegen_backend, Some("abc".to_string()));
     tracked!(crate_attr, vec!["abc".to_string()]);
+    tracked!(set_debug_compilation_dir, Some(String::from("abc")));
     tracked!(debug_macros, true);
     tracked!(dep_info_omit_d_target, true);
     tracked!(dual_proc_macros, true);

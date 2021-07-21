@@ -66,7 +66,11 @@ impl<'tcx> DebugContext<'tcx> {
             rustc_interface::util::version_str().unwrap_or("unknown version"),
             cranelift_codegen::VERSION,
         );
-        let comp_dir = tcx.sess.working_dir.to_string_lossy(false).into_owned();
+        let comp_dir =
+          match tcx.sess.opts.debugging_opts.set_debug_compilation_dir {
+            Some(val) => val.clone(),
+            None => tcx.sess.working_dir.to_string_lossy(false).into_owned(),
+          };
         let (name, file_info) = match tcx.sess.local_crate_source_file.clone() {
             Some(path) => {
                 let name = path.to_string_lossy().into_owned();

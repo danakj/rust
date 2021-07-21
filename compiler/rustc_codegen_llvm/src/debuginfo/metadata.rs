@@ -770,7 +770,9 @@ pub fn file_metadata(cx: &CodegenCx<'ll, '_>, source_file: &SourceFile) -> &'ll 
 
     let hash = Some(&source_file.src_hash);
     let file_name = Some(source_file.name.prefer_remapped().to_string());
-    let directory = if source_file.is_real_file() && !source_file.is_imported() {
+    let directory = if cx.sess().opts.debugging_opts.set_debug_compilation_dir.is_some() {
+        cx.sess().opts.debugging_opts.set_debug_compilation_dir.clone()
+    } else if source_file.is_real_file() && !source_file.is_imported() {
         Some(cx.sess().working_dir.to_string_lossy(false).to_string())
     } else {
         // If the path comes from an upstream crate we assume it has been made
@@ -813,6 +815,8 @@ fn file_metadata_raw(
                 None => (llvm::ChecksumKind::None, String::new()),
             };
 
+            // The directory here specifies what becomes the DW_AT_comp_dir
+            // (the compilation directory).
             let file_metadata = unsafe {
                 llvm::LLVMRustDIBuilderCreateFile(
                     DIB(cx),
@@ -999,7 +1003,10 @@ pub fn compile_unit_metadata(
     let producer = format!("clang LLVM ({})", rustc_producer);
 
     let name_in_debuginfo = name_in_debuginfo.to_string_lossy();
-    let work_dir = tcx.sess.working_dir.to_string_lossy(false);
+    let work_dir = match &tcx.sess.opts.debugging_opts.set_debug_compilation_dir {
+        Some(dir) => dir.clone(),
+        None => tcx.sess.working_dir.to_string_lossy(false).to_string(),
+    };
     let flags = "\0";
     let output_filenames = tcx.output_filenames(());
     let out_dir = &output_filenames.out_directory;

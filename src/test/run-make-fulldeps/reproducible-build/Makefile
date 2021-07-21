@@ -10,6 +10,7 @@ all:  \
 	link_paths \
 	remap_paths \
 	different_source_dirs \
+	different_debug_compilation_dirs_bin \
 	extern_flags
 
 smoke:
@@ -63,6 +64,25 @@ different_source_dirs:
 		--remap-path-prefix=$(TMPDIR)/test=/b \
 		--crate-type rlib)
 	cmp "$(TMPDIR)/libreproducible_build.rlib" "$(TMPDIR)/libfoo.rlib" || exit 1
+
+#TODO: rlibs
+#TODO: do we need debuginfo=2?
+different_debug_compilation_dirs_bin:
+	rm -rf $(TMPDIR) && mkdir $(TMPDIR)
+	$(RUSTC) reproducible-build-aux.rs
+	mkdir $(TMPDIR)/test1
+	mkdir $(TMPDIR)/test2
+	cp reproducible-build.rs $(TMPDIR)/test1
+	cp reproducible-build.rs $(TMPDIR)/test2
+	(cd $(TMPDIR)/test1 && \
+	 $(RUSTC) reproducible-build.rs --crate-type bin -C debuginfo=2 \
+	   -Z set-debug-compilation-dir=/hello)
+	cp $(TMPDIR)/reproducible-build $(TMPDIR)/first
+	(cd $(TMPDIR)/test2 && \
+	 $(RUSTC) reproducible-build.rs --crate-type bin -C debuginfo=2 \
+	   -Z set-debug-compilation-dir=/hello)
+	cp $(TMPDIR)/reproducible-build $(TMPDIR)/second
+	cmp "$(TMPDIR)/first" "$(TMPDIR)/second" || exit 1
 
 extern_flags:
 	rm -rf $(TMPDIR) && mkdir $(TMPDIR)

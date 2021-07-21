@@ -66,6 +66,16 @@ or off. It takes one of the following values:
 If not specified, debug assertions are automatically enabled only if the
 [opt-level](#opt-level) is 0.
 
+## set-debug-compilation-dir
+
+This instructs `rustc` to emit the specified path as the compilation dir in its
+generated debugging info. This is the DW_AT_comp_dir field in DWARF binaries.
+This flag is used to produce a deterministic build output, as it avoids
+properties of the current machine or user from leaking into the debugging info.
+
+This is an unstable option. Use `-Z set-debug-compilation-dir=val` to specify a
+value.
+
 ## debuginfo
 
 This flag controls the generation of debug information. It takes one of the
